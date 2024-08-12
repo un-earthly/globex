@@ -1,7 +1,7 @@
 'use client'
 
 import { useDispatch } from 'react-redux'
-import { removeFromCart, updateQuantity } from '@/lib/features/cart/cartSlice'
+import { removeFromCart, updateQuantity } from '@/lib/features/cartSlice'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 

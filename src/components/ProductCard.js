@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux'
 import { addToCart } from '@/lib/features/cartSlice'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import AddToCartButton from './AddToCartButton'
+import AddToWishlistButton from './AddToWishlistButton'
 
 export default function ProductCard({ product }) {
     const dispatch = useDispatch()
@@ -30,7 +32,8 @@ export default function ProductCard({ product }) {
                 <p className="text-lg font-semibold mt-2">${product.price.toFixed(2)}</p>
             </CardContent>
             <CardFooter>
-                <Button onClick={handleAddToCart}>Add to Cart</Button>
+                <AddToCartButton product={product} iconOnly />
+                <AddToWishlistButton product={product} iconOnly />
             </CardFooter>
         </Card>
     )

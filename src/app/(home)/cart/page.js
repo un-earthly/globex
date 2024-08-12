@@ -3,6 +3,7 @@
 import { useSelector } from 'react-redux'
 import CartItem from '@/components/CartItem'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function CartPage() {
     const { items, total } = useSelector(state => state.cart)
@@ -21,7 +22,11 @@ export default function CartPage() {
             </div>
             <div className="mt-8">
                 <p className="text-xl font-semibold">Total: ${total.toFixed(2)}</p>
-                <Button className="mt-4">Proceed to Checkout</Button>
+                <Button asChild className="mt-4">
+                    <Link href="/checkout">
+                        Proceed to Checkout
+                    </Link>
+                </Button>
             </div>
         </div>
     )

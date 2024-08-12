@@ -1,6 +1,7 @@
 import { fetchProductDetails } from '@/lib/products'
 import AddToCartButton from '@/components/AddToCartButton.js'
 import { Button } from '@/components/ui/button'
+import AddToWishlistButton from '@/components/AddToWishlistButton'
 
 export default async function ProductPage({ params }) {
     const product = await fetchProductDetails(params.id)
@@ -19,7 +20,7 @@ export default async function ProductPage({ params }) {
                 <p className="text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
                 <p className="mb-6">{product.description}</p>
                 <AddToCartButton product={product} />
-                <Button variant="outline" className="ml-4">Add to Wishlist</Button>
+                <AddToWishlistButton product={product} />
             </div>
         </div>
     )

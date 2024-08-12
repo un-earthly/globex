@@ -10,16 +10,25 @@ import {
     CardHeader,
     CardTitle
 } from '@/components/ui/card'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function AccountPage() {
     const user = useSelector(state => state.user.currentUser)
+    const router = useRouter()
+
+    useEffect(() => {
+        if (!user) {
+            router.push('/login')
+        }
+    }, [user, router])
 
     if (!user) {
-        return <div>Please log in to view your account.</div>
+        return null // or a loading spinner
     }
 
     return (
-        <div>
+        <div className="container mx-auto max-w-2xl mt-10">
             <h1 className="text-3xl font-bold mb-6">My Account</h1>
             <Card>
                 <CardHeader>
@@ -27,7 +36,11 @@ export default function AccountPage() {
                     <CardDescription>{user.email}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Account details here...</p>
+                    <p>Account ID: {user.id}</p>
+                    <p>Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
+                    {user.address && (
+                        <p>Address: {user.address}</p>
+                    )}
                 </CardContent>
                 <CardFooter>
                     <Button>Edit Profile</Button>

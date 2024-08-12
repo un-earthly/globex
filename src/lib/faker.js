@@ -13,6 +13,13 @@ export const generateProduct = () => ({
     countInStock: faker.number.int({ min: 0, max: 100 }),
 });
 
+export function generateCategory() {
+    return {
+        id: faker.string.uuid(),
+        name: faker.commerce.department(),
+        imageUrl: faker.image.url(300, 300, 'product', true),
+    };
+}
 export const generateUser = () => ({
     id: faker.string.uuid(),
     name: faker.person.fullName(),
@@ -43,7 +50,7 @@ export const generateOrder = () => ({
         product: generateProduct(),
         quantity: faker.number.int({ min: 1, max: 10 }),
     })),
-    totalAmount: faker.commerce.price({min:100,max: 1000, dec:2}),
+    totalAmount: faker.commerce.price({ min: 100, max: 1000, dec: 2 }),
     status: faker.helpers.arrayElement(['pending', 'processing', 'shipped', 'delivered']),
     createdAt: faker.date.past(),
     shippingAddress: {
