@@ -18,7 +18,7 @@ const step1Schema = z.object({
 const step2Schema = z.object({
     address: z.string().min(5, { message: 'Address must be at least 5 characters.' }),
     city: z.string().min(2, { message: 'City must be at least 2 characters.' }),
-    zipCode: z.string().min(5, { message: 'ZIP code must be at least 5 characters.' }),
+    zipCode: z.string().min(4, { message: 'ZIP code must be at least 4 characters.' }),
 });
 
 const step3Schema = z.object({
@@ -31,8 +31,8 @@ const formSchema = z.object({
     ...step3Schema.shape,
 });
 export default function CheckoutForm({ step, nextStep, prevStep, onComplete }) {
+    const [formData, setFormData] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const getSchemaForStep = (step) => {
         switch (step) {
             case 1: return step1Schema;
@@ -55,25 +55,35 @@ export default function CheckoutForm({ step, nextStep, prevStep, onComplete }) {
     });
 
     const onSubmit = (data) => {
-        console.log("Form submitted:", data);  // Add this line
+       
         setIsSubmitting(true);
-        // Simulate API call
+        const updatedFormData = { ...formData, ...data };
+        setFormData(updatedFormData);
         setTimeout(() => {
-            console.log("After timeout:", data);
             setIsSubmitting(false);
             if (step < 3) {
                 nextStep();
             } else {
-                onComplete(data);
+                onComplete(updatedFormData);
             }
         }, 2000);
+    };
+    const getStepIcon = (currentStep) => {
+        switch (currentStep) {
+            case 1: return "📦";
+            case 2: return "🏠";
+            case 3: return "💳";
+            default: return "";
+        }
     };
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>
+                        <CardTitle className="text-lg items-center justify-center">
+                            <span className="text-2xl mr-2">{getStepIcon(step)}</span>
+
                             {step === 1 && "Shipping Information"}
                             {step === 2 && "Address Information"}
                             {step === 3 && "Payment Method"}

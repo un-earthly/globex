@@ -359,8 +359,8 @@ export default function Header() {
     }
 
     return (
-        <header className="bg-white shadow-md sticky top-0 z-50">
-            <div className="bg-gray-100 text-xs py-1">
+        <header className="bg-gray-100 shadow-md sticky top-0 z-50">
+            <div className="text-xs py-1">
                 <div className="container mx-auto px-4 flex justify-between items-center">
                     <div className="hidden md:block">
                         <span>Free shipping on orders over $50!</span>
@@ -526,7 +526,9 @@ export default function Header() {
                                                             className="rounded-lg mb-4"
                                                         />
                                                         <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
-                                                        <Button variant="outline">Shop Now</Button>
+                                                        <Link href={`/category/${category.value}`} passHref>
+                                                            <Button variant="outline" as="a">Shop Now</Button>
+                                                        </Link>
                                                     </div>
                                                 </div>
                                             </div>
@@ -541,7 +543,6 @@ export default function Header() {
         </header>
     )
 }
-
 
 const ListItem = forwardRef(({ className, title, children, ...props }, ref) => {
     return (
@@ -561,6 +562,9 @@ const ListItem = forwardRef(({ className, title, children, ...props }, ref) => {
                     </p>
                 </a>
             </NavigationMenuLink>
-        </li >
-    )
-})
+        </li>
+    );
+});
+
+// Assign a display name to the component
+ListItem.displayName = "ListItem";

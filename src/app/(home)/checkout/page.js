@@ -1,7 +1,6 @@
 // app/checkout/page.jsx
 "use client"
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import CheckoutForm from '@/components/CheckoutForm';
 import OrderSummary from '@/components/OrderSummary';
 import SuccessPage from '@/components/SuccessPage';
@@ -10,7 +9,6 @@ export default function Checkout() {
     const [step, setStep] = useState(1);
     const [isComplete, setIsComplete] = useState(false);
     const [orderData, setOrderData] = useState(null);
-    const { items, total } = useSelector(state => state.cart);
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
@@ -37,7 +35,7 @@ export default function Checkout() {
                     />
                 </div>
                 <div>
-                    <OrderSummary items={items} total={total} />
+                    <OrderSummary />
                 </div>
             </div>
         </div>
