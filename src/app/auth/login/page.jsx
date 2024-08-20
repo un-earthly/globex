@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '@/lib/features/userSlice';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,46 +10,45 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLoginMutation } from '@/lib/features/api';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [customError, setCustomError] = useState('');
     const dispatch = useDispatch();
     const router = useRouter();
 
+    const [login, { isLoading, error }] = useLoginMutation();
+
+    useEffect(() => {
+        // Check if user is already logged in
+        const user = localStorage.getItem('user');
+        if (user) {
+            router.push('/');
+        }
+    }, [router]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-
+        setCustomError('');
         try {
-            // Simulate fetching user data from localStorage
-            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-
-            // Find the user with matching email and password
-            const user = storedUsers.find((u) => u.email === email && u.password === password);
-
-            if (!user) {
-                throw new Error('Invalid email or password');
+            const response = await login({ email, password }).unwrap();
+            console.log('Login response:', response);
+            if (response) {
+                // Store user in localStorage
+                localStorage.setItem('user', JSON.stringify(response.user));
+                // Update Redux state
+                dispatch(setCurrentUser(response.user));
+                console.log('User set in localStorage and Redux. Navigating to home...');
+                // Use replace instead of push to prevent going back to login page
+                router.replace('/');
+            } else {
+                setCustomError('Invalid response from server');
             }
-
-            // Simulate generating a token
-            const token = 'dummy-auth-token';
-
-            // Store the token in local storage
-            localStorage.setItem('token', token);
-
-            // Update Redux state with the user data
-            dispatch(setCurrentUser(user));
-
-            // Redirect to home page or dashboard
-            router.push('/');
         } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+            console.error('Failed to log in:', err);
+            setCustomError(err.data?.message || 'An error occurred during login. Please try again.');
         }
     };
 
@@ -87,13 +86,13 @@ const LoginPage = () => {
                                     required
                                 />
                             </div>
-                            {error && (
+                            {(error || customError) && (
                                 <Alert variant="destructive">
-                                    <AlertDescription>{error}</AlertDescription>
+                                    <AlertDescription>{customError || error.data?.message || 'An error occurred'}</AlertDescription>
                                 </Alert>
                             )}
-                            <Button type="submit" className="w-full" disabled={loading}>
-                                {loading ? (
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Signing In...

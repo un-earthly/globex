@@ -8,7 +8,8 @@ import { ShoppingCart } from 'lucide-react'
 export default function AddToCartButton({ product, iconOnly = false }) {
     const dispatch = useDispatch()
     const cartItems = useSelector((state) => state.cart.items);
-    const isInCart = cartItems.some(item => item.id === product.id);
+    const isInCart = cartItems.some(item => item._id === product._id);
+
 
     const handleAddToCart = () => {
         dispatch(addToCart(product))

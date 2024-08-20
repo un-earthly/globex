@@ -61,3 +61,98 @@ export const generateOrder = () => ({
         country: faker.location.country(),
     },
 });
+
+
+
+
+const categories = [
+    '66c1aecb5667e83f8b5e574e', // electronics
+    '66c1aecb5667e83f8b5e574f', // fashion
+    '66c1aecb5667e83f8b5e5750', // home appliance
+    '66c1aecb5667e83f8b5e5751', // beauty and health
+    '66c1aecb5667e83f8b5e5752', // sports
+    '66c1aecb5667e83f8b5e5753', // automotive
+    '66c1aecb5667e83f8b5e5754', // toys and games
+];
+
+const subCategories = [
+    "smartphones",
+    "laptops",
+    "tablets",
+    "cameras",
+    "headphones",
+    "smartwatches",
+    "gaming-consoles",
+    "drones",
+    "mens-clothing",
+    "womens-clothing",
+    "footwear",
+    "watches",
+    "bags",
+    "jewelry",
+    "sunglasses",
+    "accessories",
+    "refrigerators",
+    "washing-machines",
+    "microwave-ovens",
+    "air-conditioners",
+    "vacuum-cleaners",
+    "water-purifiers",
+    "kitchen-appliances",
+    "heaters",
+    "skincare",
+    "makeup",
+    "haircare",
+    "fragrances",
+    "personal-care",
+    "health-supplements",
+    "sportswear",
+    "sports-footwear",
+    "gym-equipment",
+    "outdoor-gear",
+    "team-sports",
+    "cycling",
+    "yoga",
+    "swimming",
+    "car-accessories",
+    "motorbike-accessories",
+    "tires-wheels",
+    "oils-fluids",
+    "car-care",
+    "motorbike-parts",
+    "tools-equipment",
+    "action-figures",
+    "board-games",
+    "puzzles",
+    "dolls",
+    "educational-toys",
+    "outdoor-toys",
+    "video-games",
+    "building-sets"
+];
+
+// (async function generateProducts() {
+//     const products = [];
+//     for (let i = 0; i < 1000; i++) {
+//         const price = parseFloat(faker.commerce.price());
+//         const sellingPrice = parseFloat(faker.commerce.price({ min: 0, max: price }));
+
+//         const product = {
+//             productName: faker.commerce.productName(),
+//             brandName: faker.company.name(),
+//             category: categories[Math.floor(Math.random() * categories.length)],
+//             subcategory: subCategories[Math.floor(Math.random() * subCategories.length)],
+//             productImage: [
+//                 faker.image.url(300, 300, 'product', true),
+//                 faker.image.url(300, 300, 'product', true),
+//             ],
+//             description: faker.commerce.productDescription(),
+//             price: price.toFixed(2),
+//             sellingPrice: sellingPrice.toFixed(2),
+//         };
+//         products.push(product);
+//     }
+//     const productsJson = JSON.stringify(products, null, 2);
+
+//     console.log(productsJson);
+// })();

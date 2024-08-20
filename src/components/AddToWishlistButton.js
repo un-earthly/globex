@@ -8,7 +8,7 @@ import { addToWishlist } from '@/lib/features/wishlistSlice';
 const AddToWishlistButton = ({ product, iconOnly = false }) => {
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.wishlist.items);
-  const isInWishlist = wishlistItems.some(item => item.id === product.id);
+  const isInWishlist = wishlistItems.some(item => item._id === product._id);
 
   const handleAddToWishlist = () => {
     dispatch(addToWishlist(product));
@@ -21,8 +21,8 @@ const AddToWishlistButton = ({ product, iconOnly = false }) => {
       onClick={handleAddToWishlist}
       disabled={isInWishlist}
     >
-      <Heart className={`h-4 w-4 ${iconOnly ? '' : 'mr-2'}`} fill={isInWishlist ? "currentColor" : "none"} />
-      {!iconOnly && (isInWishlist ? 'In Wishlist' : 'Add to Wishlist')}
+      <Heart className={`h-4 w-4`} fill={isInWishlist ? "currentColor" : "none"} />
+      {/* {!iconOnly && (isInWishlist ? 'In Wishlist' : 'Add to Wishlist')} */}
     </Button>
   );
 };

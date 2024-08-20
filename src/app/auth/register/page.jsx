@@ -10,68 +10,62 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSignUpMutation } from '@/lib/features/api';
 
 const SignUpPage = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [customError, setCustomError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const dispatch = useDispatch();
     const router = useRouter();
 
+    const [signUp, { isLoading, error }] = useSignUpMutation();
+
+    useEffect(() => {
+        // Check if user is already logged in
+        const user = localStorage.getItem('user');
+        if (user) {
+            router.replace('/');
+        }
+    }, [router]);
+
     const handleSignUp = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
+        setCustomError('');
+        setSuccessMessage('');
 
         if (password !== confirmPassword) {
-            setError('Passwords do not match.');
-            setLoading(false);
+            setCustomError('Passwords do not match.');
             return;
         }
 
         try {
-            // Simulate fetching user data from localStorage
-            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-
-            // Check if the email is already registered
-            const existingUser = storedUsers.find((user) => user.email === email);
-
-            if (existingUser) {
-                throw new Error('User already exists');
+            const response = await signUp({ name, email, password }).unwrap();
+            console.log('Signup response:', response);
+            if (response && response.user) {
+                // Store user in localStorage
+                localStorage.setItem('user', JSON.stringify(response.user));
+                // Update Redux state
+                dispatch(setCurrentUser(response.user));
+                setSuccessMessage('Registration successful! Redirecting to home...');
+                console.log('User set in localStorage and Redux. Navigating to home...');
+                setTimeout(() => {
+                    router.replace('/');
+                }, 1000);
+            } else {
+                setCustomError('Invalid response from server');
             }
-
-            // Create a new user
-            const newUser = { name, email, password };
-
-            // Simulate saving user data to localStorage
-            storedUsers.push(newUser);
-            localStorage.setItem('users', JSON.stringify(storedUsers));
-
-            // Simulate generating a token
-            const token = 'dummy-auth-token';
-
-            // Store the token in local storage
-            localStorage.setItem('token', token);
-
-            // Update Redux state with the new user data
-            dispatch(setCurrentUser(newUser));
-
-            // Redirect to home page or dashboard
-            router.push('/');
         } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+            console.error('Failed to sign up:', err);
+            setCustomError(err.data?.message || 'An error occurred during sign up. Please try again.');
         }
     };
 
     return (
         <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-
-
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <Card className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
                     <CardHeader>
@@ -124,13 +118,18 @@ const SignUpPage = () => {
                                     required
                                 />
                             </div>
-                            {error && (
+                            {(error || customError) && (
                                 <Alert variant="destructive">
-                                    <AlertDescription>{error}</AlertDescription>
+                                    <AlertDescription>{customError || error.data?.message || 'An error occurred'}</AlertDescription>
                                 </Alert>
                             )}
-                            <Button type="submit" className="w-full" disabled={loading}>
-                                {loading ? (
+                            {successMessage && (
+                                <Alert variant="success">
+                                    <AlertDescription>{successMessage}</AlertDescription>
+                                </Alert>
+                            )}
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Signing Up...
@@ -148,7 +147,6 @@ const SignUpPage = () => {
                                 Login
                             </Link>
                         </p>
-
                     </CardFooter>
                 </Card>
             </div>

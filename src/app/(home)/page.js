@@ -1,38 +1,19 @@
-import { Suspense } from 'react'
+"use client"
 import Link from 'next/link'
 import { Facebook, Twitter, Instagram, Chrome, Youtube, Twitch, Linkedin, ShoppingCart, Tag } from 'lucide-react';
-import { fetchFeaturedProducts, fetchDealOfTheDay, fetchTopCategories } from '@/lib/products'
 import ProductList from '@/components/ProductList'
 import { Button } from '@/components/ui/button'
-import { ArrowRight } from 'lucide-react'
-
-// New components you'll need to create:
 import HeroBanner from '@/components/HeroBanner'
 import CategoryCard from '@/components/CategoryCard'
 import DealOfTheDay from '@/components/DealOfTheDay'
 import PromoBar from '@/components/PromoBar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Container } from '@/components/ui/container';
+import { Section } from '@/components/ui/section';
+import { useGetAllProductsQuery, useGetDealOfTheDayQuery, useGetTopCategoriesQuery } from '@/lib/features/api';
+import { useEffect } from 'react';
 
-async function FeaturedProducts() {
-  const featuredProducts = await fetchFeaturedProducts()
-  return <ProductList products={featuredProducts} />
-}
 
-async function DealOfTheDaySection() {
-  const deal = await fetchDealOfTheDay()
-  return <DealOfTheDay deal={deal} />
-}
-
-async function TopCategories() {
-  const categories = await fetchTopCategories()
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      {categories.map((category) => (
-        <CategoryCard key={category.id} category={category} />
-      ))}
-    </div>
-  )
-}
 
 export default function Home() {
   const brandIcons = [
@@ -43,41 +24,51 @@ export default function Home() {
     { id: 5, icon: Youtube, name: 'Amazon' },
     { id: 6, icon: Twitch, name: 'Google' },
   ];
-
+  const { data, isError, isLoading } = useGetTopCategoriesQuery();
+  const { data: dealOfTheDay, isError: dealOfTheDayErr, isLoading: dealOfTheLoading } = useGetDealOfTheDayQuery();
+  const { data: featuredProducts, isError: featuredProductsErr, isLoading: featuredProductsLoading } = useGetAllProductsQuery()
   return (
     <div className="min-h-screen">
       <PromoBar message="Free shipping on orders over $50! Use code: FREESHIP50" />
 
-      <main className="container mx-auto px-4 py-8">
-        <HeroBanner />
+      <Container>
+        <Section>
+          <HeroBanner />
+        </Section>
 
-        <section className="my-12">
+        <Section>
           <h2 className="text-2xl font-semibold mb-6">Shop by Category</h2>
-          <Suspense fallback={<p>Loading categories...</p>}>
-            <TopCategories />
-          </Suspense>
-        </section>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {isLoading && <p>Loading</p>}
+            {(data && data.categories && data.categories.length > 0) && data.categories.slice(0, 6).map((category) => (
+              <CategoryCard key={category._id} category={category} />
+            ))}
 
-        <section className="my-12">
+          </div>
+        </Section>
+
+        <Section>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">Featured Products</h2>
             <Button variant="outline" asChild>
               <Link href="/products">View All</Link>
             </Button>
           </div>
-          <Suspense fallback={<p>Loading featured products...</p>}>
-            <FeaturedProducts />
-          </Suspense>
-        </section>
+          <ProductList products={featuredProducts?.data} />
+        </Section>
 
-        <section className="my-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-6">Deal of the Day</h2>
-          <Suspense fallback={<p>Loading deal of the day...</p>}>
-            <DealOfTheDaySection />
-          </Suspense>
-        </section>
+        <Section>
+          <Card>
+            <CardHeader>
+              <CardTitle>Deal of the Day</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DealOfTheDay deal={dealOfTheDay?.data} />
+            </CardContent>
+          </Card>
+        </Section>
 
-        <section className="my-12">
+        <Section>
           <div className="grid md:grid-cols-2 gap-6">
             {[
               {
@@ -110,22 +101,20 @@ export default function Home() {
                 </CardFooter>
               </Card>
             ))}
-
           </div>
-        </section>
+        </Section>
 
-        <section className="my-12">
+        <Section>
           <h2 className="text-2xl font-semibold mb-6">Popular Brands</h2>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
             {brandIcons.map(({ id, icon: Icon, name }) => (
-              <div key={id} className="bg-white p-4 rounded-lg shadow flex items-center justify-center">
+              <Card key={id} className="flex items-center justify-center p-4">
                 <Icon size={50} className="text-gray-700" alt={name} />
-              </div>
+              </Card>
             ))}
           </div>
-        </section>
-      </main>
-
+        </Section>
+      </Container>
     </div>
   )
 }

@@ -1,87 +1,69 @@
 "use client"
 
-import { useState, useMemo, useEffect } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import ProductCard from '@/components/ProductCard';
-import { fetchProducts } from '@/lib/products';
+import { useGetCategoryProductsQuery } from '@/lib/features/api';
+import { useSelector } from "react-redux";
+import { Loader2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Container } from '@/components/ui/container';
 
 export default function Page({ params }) {
     const { id } = params;
-    const [products, setProducts] = useState([]); // You'll need to fetch products
-    const [sortBy, setSortBy] = useState('name');
-    const [filterText, setFilterText] = useState('');
-    const [loading, setLoading] = useState(true);
+    // const [page, setPage] = useState(1);
+    const { data, isLoading, isFetching } = useGetCategoryProductsQuery(id);
+    // const hasMore = useSelector(state => state.products.hasMore);
 
-    const sortedAndFilteredProducts = useMemo(() => {
-        return products
-            .filter(product =>
-                product.name.toLowerCase().includes(filterText.toLowerCase()) ||
-                product.description.toLowerCase().includes(filterText.toLowerCase())
-            )
-            .sort((a, b) => {
-                if (sortBy === 'price') {
-                    return a.price - b.price;
-                } else if (sortBy === 'name') {
-                    return a.name.localeCompare(b.name);
-                }
-                return 0;
-            });
-    }, [products, sortBy, filterText]);
-
-    useEffect(() => {
-        const loadProducts = async () => {
-            setLoading(true);
-            try {
-                const fetchedProducts = await fetchProducts();
-                setProducts(fetchedProducts);
-            } catch (error) {
-                console.error('Failed to fetch products:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadProducts();
-    }, [id]); // id and sid are included in case you want to filter by these in the future
+    // const loadMore = () => {
+    //     if (hasMore && !isFetching) {
+    //         setPage(prevPage => prevPage + 1);
+    //     }
+    // };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">
-                Category : {id}
-            </h1>
-            <div className="flex gap-4 mb-4">
-                <Select
-                    value={sortBy}
-                    onValueChange={setSortBy}
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="name">Sort by Name</SelectItem>
-                        <SelectItem value="price">Sort by Price</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Input
-                    type="text"
-                    placeholder="Filter products..."
-                    value={filterText}
-                    onChange={(e) => setFilterText(e.target.value)}
-                    className="flex-grow"
-                />
-            </div>
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {sortedAndFilteredProducts.map(product => (
-                        <ProductCard key={product.id} product={product} />
-                    ))}
-                </div>
-                {sortedAndFilteredProducts.length === 0 && (
-                    <p className="text-center text-gray-500">No products found.</p>
+        <Container>
+            <div className="px-4 py-8">
+                <h1 className="text-3xl font-bold mb-6 text-center">
+                    {data?.categoryName || `Category: ${id}`}
+                </h1>
+
+                {isLoading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {data?.data?.map(product => (
+                                <ProductCard key={product._id} product={product} />
+                            ))}
+                        </div>
+
+                        {data?.data?.length === 0 && (
+                            <p className="text-center text-gray-500 mt-8">No products found in this category.</p>
+                        )}
+
+                        {/* {hasMore && (
+                        <div className="mt-8 text-center">
+                            <Button
+                                onClick={loadMore}
+                                disabled={isFetching}
+                                className="px-6 py-2"
+                            >
+                                {isFetching ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Loading...
+                                    </>
+                                ) : (
+                                    'Load More'
+                                )}
+                            </Button>
+                        </div>
+                    )} */}
+                    </>
                 )}
             </div>
-        </div>
+        </Container>
     );
 }
