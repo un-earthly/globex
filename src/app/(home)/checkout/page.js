@@ -5,20 +5,21 @@ import CheckoutForm from '@/components/CheckoutForm';
 import OrderSummary from '@/components/OrderSummary';
 import SuccessPage from '@/components/SuccessPage';
 import { Container } from '@/components/ui/container';
+import { useRouter } from 'next/router';
 
 export default function Checkout() {
-    const [step, setStep] = useState(1);
     const [isComplete, setIsComplete] = useState(false);
     const [orderData, setOrderData] = useState(null);
-
-    const nextStep = () => setStep(step + 1);
-    const prevStep = () => setStep(step - 1);
+    const dispatch = useDispatch();
+    const router = useRouter();
 
     const handleComplete = (data) => {
         setOrderData(data);
+        dispatch(clearCart());
         setIsComplete(true);
-    };
+        router.push(`/order`);
 
+    };
     if (isComplete) {
         return <SuccessPage orderData={orderData} />;
     }
@@ -28,17 +29,12 @@ export default function Checkout() {
             <h1 className="text-3xl font-bold mb-6">Checkout</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
-                    <CheckoutForm
-                        step={step}
-                        nextStep={nextStep}
-                        prevStep={prevStep}
-                        onComplete={handleComplete}
-                    />
+                    <CheckoutForm onComplete={handleComplete} />
                 </div>
                 <div>
                     <OrderSummary />
                 </div>
             </div>
-        </Container >
+        </Container>
     );
 }

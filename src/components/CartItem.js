@@ -43,12 +43,12 @@ export default function CartItem({ item }) {
 
     return (
         <div className="flex items-center space-x-4 py-2 border-b">
-            <img src={item.productImage[0]} alt={item.name} className="w-16 h-16 object-cover" />
+            <img src={item.productImage && item.productImage.length > 0 ? item.productImage[0] : ""} alt={item.name} className="w-16 h-16 object-cover" />
             <div className="flex-grow">
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-500">${item.sellingPrice.toFixed(2)} each</p>
+                <h3 className="font-semibold">{item?.name}</h3>
+                <p className="text-sm text-gray-500">${item.sellingPrice?.toFixed(2)} each</p>
                 {item.price && (
-                    <span className="text-lg text-gray-500 line-through">${item.price}</span>
+                    <span className="text-lg text-gray-500 line-through">${item?.price}</span>
                 )}
             </div>
             <div className="flex items-center space-x-2">

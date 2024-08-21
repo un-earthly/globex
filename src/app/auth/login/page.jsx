@@ -36,12 +36,13 @@ const LoginPage = () => {
             const response = await login({ email, password }).unwrap();
             console.log('Login response:', response);
             if (response) {
+                // Store token in localStorage
+                localStorage.setItem('token', response.data.token);
                 // Store user in localStorage
-                localStorage.setItem('user', JSON.stringify(response.user));
+                localStorage.setItem('user', JSON.stringify(response.data.user));
                 // Update Redux state
-                dispatch(setCurrentUser(response.user));
+                dispatch(setCurrentUser(response.data.user));
                 console.log('User set in localStorage and Redux. Navigating to home...');
-                // Use replace instead of push to prevent going back to login page
                 router.replace('/');
             } else {
                 setCustomError('Invalid response from server');
@@ -51,6 +52,7 @@ const LoginPage = () => {
             setCustomError(err.data?.message || 'An error occurred during login. Please try again.');
         }
     };
+
 
     return (
         <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">

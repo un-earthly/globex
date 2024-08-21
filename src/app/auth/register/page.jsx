@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '@/lib/features/userSlice';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -45,15 +45,10 @@ const SignUpPage = () => {
         try {
             const response = await signUp({ name, email, password }).unwrap();
             console.log('Signup response:', response);
-            if (response && response.user) {
-                // Store user in localStorage
-                localStorage.setItem('user', JSON.stringify(response.user));
-                // Update Redux state
-                dispatch(setCurrentUser(response.user));
-                setSuccessMessage('Registration successful! Redirecting to home...');
+            if (response && response.data) {
                 console.log('User set in localStorage and Redux. Navigating to home...');
                 setTimeout(() => {
-                    router.replace('/');
+                    router.replace('/auth/login');
                 }, 1000);
             } else {
                 setCustomError('Invalid response from server');
@@ -63,6 +58,7 @@ const SignUpPage = () => {
             setCustomError(err.data?.message || 'An error occurred during sign up. Please try again.');
         }
     };
+
 
     return (
         <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">

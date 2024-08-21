@@ -17,23 +17,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Package, Truck, CreditCard } from 'lucide-react'
 
 export default function AccountPage() {
-    // const user = useSelector(state => state.user.currentUser)
     const router = useRouter()
     const [orders, setOrders] = useState([])
 
     useEffect(() => {
-        // if (!user) {
-        //     router.push('/login')
-        // } else {
-        // Fetch user's orders
         fetchOrders()
-        // }
-    }, [//user, 
+    }, [
         router])
 
     const fetchOrders = async () => {
-        // This is where you'd typically fetch orders from your API
-        // For now, we'll use mock data
         const mockOrders = [
             {
                 id: '1',
@@ -62,10 +54,6 @@ export default function AccountPage() {
         setOrders(mockOrders)
     }
 
-    // if (!user) {
-    //     return null // or a loading spinner
-    // }
-
     return (
         <div className="container mx-auto max-w-4xl mt-10">
             <h1 className="text-3xl font-bold mb-6">My Account</h1>
@@ -76,10 +64,6 @@ export default function AccountPage() {
                 </CardHeader>
                 <CardContent>
                     <p>Account ID: 012312</p>
-                    {/* <p>Joined: {new Date(user.createdAt).toLocaleDateString()}</p> */}
-                    {/* {user.address && (
-                        <p>Address: {user.address}</p>
-                    )} */}
                     <p>Address : 123 Main St, City, Country</p>
                 </CardContent>
                 <CardFooter>

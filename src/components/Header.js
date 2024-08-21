@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useState } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
@@ -34,14 +34,24 @@ export default function Header() {
     const [searchQuery, setSearchQuery] = useState('')
     const cartItemCount = useSelector(state => state.cart.items.length)
     const wishListCount = useSelector(state => state.wishlist.items.length)
-    const isAuthenticated = localStorage.getItem('user')
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
+    const dispatch = useDispatch()
     const { data, isError, isLoading } = useGetTopCategoriesQuery();
+
 
     const [selectedCategory, setSelectedCategory] = useState("")
 
-
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        console.log(user)
+        if (user) {
+            setIsAuthenticated(true);
+            setIsAdmin(user.role === 'ADMIN');
+        }
+    }, []);
     const handleSearch = (e) => {
         router.push(`/search?q=${encodeURIComponent(e.target.value)}`)
     }
@@ -51,8 +61,12 @@ export default function Header() {
 
     const handleSignOut = () => {
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        dispatch(logout());
+        setIsAuthenticated(false);
         router.push('/');
     };
+
     return (
         <header className="bg-gray-100 shadow-md sticky top-0 z-50">
             <div className="text-xs py-1">
@@ -78,12 +92,17 @@ export default function Header() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    {/* <DropdownMenuItem>
+                                    {!isAdmin ? <DropdownMenuItem>
                                         <Link href="/profile" className="w-full">Profile</Link>
                                     </DropdownMenuItem>
+                                        :
+                                        <DropdownMenuItem>
+                                            <Link href="/admin/dashboard" className="w-full">Dashboard</Link>
+                                        </DropdownMenuItem>
+                                    }
                                     <DropdownMenuItem>
-                                        <Link href="/orders" className="w-full">Orders</Link>
-                                    </DropdownMenuItem> */}
+                                        <Link href="/order" className="w-full">Orders</Link>
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onSelect={handleSignOut}>
                                         Sign Out
@@ -208,7 +227,7 @@ export default function Header() {
 
                             <NavigationMenu>
                                 <NavigationMenuList>
-                                    {data?.categories?.map(cat => <NavigationMenuItem>
+                                    {data?.categories?.map(cat => <NavigationMenuItem key={cat.slug}>
                                         <NavigationMenuTrigger className="bg-transparent">{cat.name}</NavigationMenuTrigger>
                                         <NavigationMenuContent className="flex w-[400px] gap-3 p-4 md:w-[500px] lg:w-[800px] ">
                                             <ul className="grid grid-cols-3 gap-5 p-4 ">

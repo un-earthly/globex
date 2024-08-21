@@ -16,13 +16,13 @@ export default function CartPage() {
         <div>
             <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
             <div className="space-y-4">
-                {items.map(item => (
+                {items?.map(item => (
                     <CartItem key={item.id} item={item} />
                 ))}
             </div>
             <div className="mt-8">
-                <p className="text-xl font-semibold">Discounted Total: ${discountedTotal.toFixed(2)}</p>
-                <p className="line-through text-gray-300">Total: ${total.toFixed(2)}</p>
+                <p className="text-xl font-semibold">Discounted Total: ${discountedTotal?.toFixed(2)}</p>
+                <p className="line-through text-gray-300">Total: ${total?.toFixed(2)}</p>
                 <Button asChild className="mt-4">
                     <Link href="/checkout">
                         Proceed to Checkout

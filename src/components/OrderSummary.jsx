@@ -37,7 +37,7 @@ export default function OrderSummary() {
                 {items.map((item, index) => (
                     <div key={index} className="flex justify-between items-center text-sm">
                         <div className="flex items-center space-x-2">
-                            <img src={item.productImage[0]} alt={item.name} className="w-10 h-10 object-cover rounded" />
+                            <img src={item.productImage && item.productImage.length > 0 ? item.productImage[0] : ""} alt={item.name} className="w-10 h-10 object-cover rounded" />
                             <span>
                                 {item.name} <span className="text-gray-500">x{item.quantity}</span>
                                 <div className="flex space-x-2  text-gray-600">

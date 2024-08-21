@@ -1,104 +1,86 @@
 "use client"
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useGetUserDetailsQuery } from "@/lib/features/api";
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useGetUserDetailsQuery } from '@/lib/features/api'
 
-export default function Profile() {
-    const router = useRouter();
-    const { data, isLoading, isError, error } = useGetUserDetailsQuery();
-    const [imageError, setImageError] = useState(false);
+export default function UserProfile() {
+    const { data, isLoading } = useGetUserDetailsQuery()
+    const user = data?.data
+    const [isEditing, setIsEditing] = useState(false)
 
+    const handleSave = () => {
+        console.log("Saving user information:", user)
+        setIsEditing(false)
+    }
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+    }
     if (isLoading) {
-        return <ProfileSkeleton />;
+        return <p>Loading user information...</p>
     }
-
-    if (isError) {
-        return (
-            <Card className="max-w-md mx-auto mt-10">
-                <CardContent className="p-6 text-center text-red-500">
-                    <p className="text-lg font-semibold">Error loading profile</p>
-                    <p className="mt-2">{error.message || 'An unexpected error occurred'}</p>
-                </CardContent>
-            </Card>
-        );
-    }
-
-    const profile = data?.data;
-
-    if (!profile) {
-        return (
-            <Card className="max-w-md mx-auto mt-10">
-                <CardContent className="p-6 text-center text-gray-500">
-                    <p className="text-lg font-semibold">No profile data available</p>
-                </CardContent>
-            </Card>
-        );
-    }
-
     return (
-        <Card className="max-w-md mx-auto mt-10">
-            <CardHeader>
-                <CardTitle className="text-center">{profile.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                {!imageError && profile.profilePicture && (
-                    <img
-                        className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                        src={profile.profilePicture}
-                        alt={profile.name}
-                        onError={() => setImageError(true)}
-                    />
-                )}
-                {(imageError || !profile.profilePicture) && (
-                    <div className="w-32 h-32 rounded-full mx-auto mb-4 bg-gray-200 flex items-center justify-center">
-                        <span className="text-2xl">{profile.name.charAt(0).toUpperCase()}</span>
+        <div className="container mx-auto px-4 py-8">
+            <Card className="max-w-md mx-auto">
+                <CardHeader>
+                    <div className="flex items-center space-x-4">
+                        <Avatar className="w-20 h-20">
+                            <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.name}`} alt={user.name} />
+                            <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <CardTitle>{user.name}</CardTitle>
+                            <CardDescription>{user.role}</CardDescription>
+                        </div>
                     </div>
-                )}
-                <table className="w-full text-sm">
-                    <tbody>
-                        <tr className="border-b">
-                            <td className="font-semibold p-2">Email:</td>
-                            <td className="p-2">{profile.email}</td>
-                        </tr>
-                        <tr className="border-b">
-                            <td className="font-semibold p-2">Phone:</td>
-                            <td className="p-2">{profile.phone || 'N/A'}</td>
-                        </tr>
-                        <tr className="border-b">
-                            <td className="font-semibold p-2">Address:</td>
-                            <td className="p-2">{profile.address || 'N/A'}</td>
-                        </tr>
-                        {/* Add more fields as needed */}
-                    </tbody>
-                </table>
-                <div className="mt-4 text-center">
-                    <Button onClick={() => router.push("/")}>Back to Home</Button>
-                </div>
-            </CardContent>
-        </Card>
-    );
-}
-
-function ProfileSkeleton() {
-    return (
-        <Card className="max-w-md mx-auto mt-10">
-            <CardHeader>
-                <Skeleton className="h-8 w-3/4 mx-auto" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="w-32 h-32 rounded-full mx-auto mb-4" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                </div>
-                <div className="mt-4 text-center">
-                    <Skeleton className="h-10 w-24 mx-auto" />
-                </div>
-            </CardContent>
-        </Card>
-    );
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name</Label>
+                        <Input
+                            id="name"
+                            value={user.name}
+                            onChange={(e) => setUser({ ...user, name: e.target.value })}
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            value={user.email}
+                            onChange={(e) => setUser({ ...user, email: e.target.value })}
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Account Created</Label>
+                        <p className="text-sm text-muted-foreground">{formatDate(user.createdAt)}</p>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Last Updated</Label>
+                        <p className="text-sm text-muted-foreground">{formatDate(user.updatedAt)}</p>
+                    </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                    {isEditing ? (
+                        <>
+                            <Button onClick={handleSave}>Save Changes</Button>
+                            <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                        </>
+                    ) : (
+                        <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                    )}
+                </CardFooter>
+            </Card>
+        </div>
+    )
 }

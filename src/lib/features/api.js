@@ -2,7 +2,16 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const categoryApi = createApi({
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:5000/api/' }),
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:5000/api/',
+        prepareHeaders: (headers) => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
+    }),
     tagTypes: ['Categories', 'CategoryProducts', 'SubCategoryProducts', 'Products', 'UserDetails'],
     endpoints: (builder) => ({
         login: builder.mutation({
@@ -78,6 +87,14 @@ export const categoryApi = createApi({
             }),
             providesTags: ['UserDetails'],
         }),
+        uploadProduct: builder.mutation({
+            query: (newProduct) => ({
+                url: 'upload-product',
+                method: 'POST',
+                body: newProduct,
+            }),
+            invalidatesTags: ['Product'], // Adjust this if you're using caching for product data
+        }),
     }),
 });
 
@@ -92,5 +109,6 @@ export const {
     useSignUpMutation,
     useGetUserDetailsQuery,
     useGetProductDetailsQuery,
+    useUploadProductMutation
 
 } = categoryApi;
