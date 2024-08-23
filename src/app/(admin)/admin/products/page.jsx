@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -18,113 +18,105 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react"
+import { MoreHorizontal, ChevronLeft, ChevronRight, EyeIcon, PencilIcon, TrashIcon } from "lucide-react"
 import { CreateProductModal } from '@/components/CreateProductModal'
-import { useGetAllProductsQuery } from '@/lib/features/api'
+import { useDeleteProductMutation, useGetAllProductsQuery, useGetSearchResultQuery, useGetTopCategoriesQuery } from '@/lib/features/api'
 import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import ProductModal from '@/components/ProductModal'
+import DeleteModal from '@/components/DeleteModal'
+import { generatePaginationButtons } from '@/lib/utils'
+import ProductListSkeleton from '@/components/ProductListSkeleton'
+import ErrCard from '@/components/ErrCard'
 
 
 export default function Products() {
-    const [sortColumn, setSortColumn] = useState('')
-    const [sortDirection, setSortDirection] = useState('asc')
     const [currentPage, setCurrentPage] = useState(1);
-    const limit = 20; // This matches the default limit in your API
+    const limit = 100;
+
+    const {
+        data: categories,
+        isError: categoriesErr,
+        isLoading: categoriesLoading
+    } = useGetTopCategoriesQuery();
+    useEffect(() => {
+        categories?.data?.map(c => console.log(c.name))
+    }, [categories])
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [search, setSearch] = useState('')
+    const [isEditing, setIsEditing] = useState(false)
+    const [editedProduct, setEditedProduct] = useState(null)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const [productToDelete, setProductToDelete] = useState(null)
+
+    const [searchData, setSearchData] = useState([]);
     const {
         data,
         isLoading,
         isError,
         error
     } = useGetAllProductsQuery({ page: currentPage, limit });
+    const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
+    const { data: searchResults, isFetching } = useGetSearchResultQuery({ q: search, page: currentPage, limit });
+
+    useEffect(() => {
+        if (search) {
+            if (!isFetching && searchResults) {
+                setSearchData(searchResults.data);
+            }
+        } else {
+            if (!isLoading && data) {
+                setSearchData(data.data);
+            }
+        }
+
+
+        console.log(searchResults)
+    }, [search, isFetching, searchResults, isLoading, data]);
+    const openModal = (product, editing = false) => {
+        setEditedProduct({ ...product })
+        setIsEditing(editing)
+        setIsModalOpen(true)
+    }
+    const openDeleteDialog = (product) => {
+        setProductToDelete(product)
+        setIsDeleteDialogOpen(true)
+    }
+
+    const handleDelete = async () => {
+        try {
+            await deleteProduct(productToDelete._id).unwrap();
+            console.log('Product deleted successfully');
+        } catch (error) {
+            console.error('Failed to delete product:', error);
+        }
+    };
+    const handleImageUpload = (e) => {
+    }
     if (isLoading) {
         return <ProductListSkeleton />;
     }
 
     if (isError) {
-        return (
-            <Card>
-                <CardContent className="p-6 text-center text-red-500">
-                    <p className="text-lg font-semibold">Error loading products</p>
-                    <p className="mt-2">{error.message || 'An unexpected error occurred'}</p>
-                </CardContent>
-            </Card>
-        );
+        <ErrCard />
     }
-    const { data: products, totalPages } = data;
+    const handleInputChange = (e) => {
+        const { name, value } = e.target
+        setEditedProduct(prev => ({ ...prev, [name]: value }))
+    }
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-    const generatePaginationButtons = () => {
-        const buttons = [];
-        const maxVisibleButtons = 5;
+    const handleSave = () => {
 
-        if (totalPages <= maxVisibleButtons) {
-            for (let i = 1; i <= totalPages; i++) {
-                buttons.push(
-                    <Button
-                        key={i}
-                        variant={currentPage === i ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => paginate(i)}
-                    >
-                        {i}
-                    </Button>
-                );
-            }
-        } else {
-            buttons.push(
-                <Button
-                    key={1}
-                    variant={currentPage === 1 ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => paginate(1)}
-                >
-                    1
-                </Button>
-            );
-
-            if (currentPage > 3) {
-                buttons.push(<span key="ellipsis1">...</span>);
-            }
-
-            for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
-                buttons.push(
-                    <Button
-                        key={i}
-                        variant={currentPage === i ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => paginate(i)}
-                    >
-                        {i}
-                    </Button>
-                );
-            }
-
-            if (currentPage < totalPages - 2) {
-                buttons.push(<span key="ellipsis2">...</span>);
-            }
-
-            buttons.push(
-                <Button
-                    key={totalPages}
-                    variant={currentPage === totalPages ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => paginate(totalPages)}
-                >
-                    {totalPages}
-                </Button>
-            );
-        }
-
-        return buttons;
     };
+    const totalPages = search ? searchResults?.totalPages : data?.totalPages;
+
     return (
         <div className="space-y-4">
             <div className="flex justify-between">
                 <h2 className="text-3xl font-bold tracking-tight">Products</h2>
                 <div className="flex items-center space-x-2">
-                    <Input placeholder="Search products..." className="max-w-sm" />
-                    <Button>Search</Button>
+                    <Input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
                     <CreateProductModal>
                         <Button>Add Product</Button>
                     </CreateProductModal>
@@ -138,16 +130,16 @@ export default function Products() {
                         <TableHead>Name</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead className="cursor-pointer">
-                            Price 
+                            Price
                         </TableHead>
                         <TableHead className="cursor-pointer">
-                            Stock 
+                            Stock
                         </TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data?.data?.map((product) => (
+                    {searchData?.map((product) => (
                         <TableRow key={product.id}>
                             <TableCell className="font-medium"><img className='h-6 w-6' src={product.productImage[0]} alt="" /></TableCell>
                             <TableCell className="font-medium">{product._id}</TableCell>
@@ -165,17 +157,43 @@ export default function Products() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuItem>Edit product</DropdownMenuItem>
-                                        <DropdownMenuItem>View details</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => openModal(product, false)}>
+                                            <EyeIcon className="mr-2 h-4 w-4" />
+                                            View
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => openModal(product, true)}>
+                                            <PencilIcon className="mr-2 h-4 w-4" />
+                                            Edit
+                                        </DropdownMenuItem>
+
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem>Delete product</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => openDeleteDialog(product)}>
+                                            <TrashIcon className="mr-2 h-4 w-4" />
+                                            Delete
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
+
             </Table>
+            <ProductModal
+                editedProduct={editedProduct}
+                handleImageUpload={handleImageUpload}
+                handleInputChange={handleInputChange}
+                handleSave={handleSave}
+                isEditing={isEditing}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+            />
+            <DeleteModal
+                handleDelete={handleDelete}
+                isDeleteDialogOpen={isDeleteDialogOpen}
+                productToDelete={productToDelete}
+                setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+            />
             {totalPages > 1 && (
                 <div className="flex justify-center items-center space-x-2 mt-8">
 
@@ -189,7 +207,7 @@ export default function Products() {
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            {generatePaginationButtons()}
+                            {generatePaginationButtons(currentPage, totalPages, paginate, Button)}
                             <Button
                                 variant="outline"
                                 size="icon"
@@ -204,20 +222,4 @@ export default function Products() {
             )}
         </div>
     )
-}
-
-function ProductListSkeleton() {
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, index) => (
-                <Card key={index}>
-                    <Skeleton className="h-64 w-full" />
-                    <CardContent className="p-4">
-                        <Skeleton className="h-4 w-2/3 mb-2" />
-                        <Skeleton className="h-4 w-1/2" />
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
-    );
 }

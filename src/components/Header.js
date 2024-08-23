@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
@@ -30,6 +30,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion'
 import { cn } from '@/lib/utils'
 import { useGetTopCategoriesQuery } from '@/lib/features/api'
+import SearchBar from './SearchBar'
 export default function Header() {
     const [searchQuery, setSearchQuery] = useState('')
     const cartItemCount = useSelector(state => state.cart.items.length)
@@ -53,7 +54,10 @@ export default function Header() {
         }
     }, []);
     const handleSearch = (e) => {
-        router.push(`/search?q=${encodeURIComponent(e.target.value)}`)
+        setSearchQuery(e.target.value)
+        if (e.target.value) {
+            router.push(`/search?q=${encodeURIComponent(e.target.value)}`)
+        }
     }
     if (selectedCategory) {
         router.push(`/search?q=${selectedCategory}`)
@@ -97,7 +101,7 @@ export default function Header() {
                                     </DropdownMenuItem>
                                         :
                                         <DropdownMenuItem>
-                                            <Link href="/admin/dashboard" className="w-full">Dashboard</Link>
+                                            <Link href="/admin" className="w-full">Dashboard</Link>
                                         </DropdownMenuItem>
                                     }
                                     <DropdownMenuItem>
@@ -124,12 +128,9 @@ export default function Header() {
                 <form className="flex-grow mx-4 max-w-3xl hidden md:block">
                     <div className="flex w-full border-2 rounded-full border-black">
                         <div className="relative flex-grow">
-                            <Input
-                                type="search"
-                                placeholder="Search products..."
-                                onChange={(e) => { handleSearch(e); }}
-                                className="w-full border-transparent ring-0 border-0 focus-visible:ring-offset-0 focus-visible:ring-0 shadow-none pl-10 pr-4"
-                            />
+                            <Suspense>
+                                <SearchBar handleSearch={handleSearch} />
+                            </Suspense>
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                         </div>
                         <div className="shrink-0">
@@ -182,18 +183,12 @@ export default function Header() {
             <div className="md:hidden">
                 {isMobileMenuOpen && (
                     <div className="px-4 py-2">
-                        <form onSubmit={handleSearch} className="mb-4">
+                        <form className="mb-4">
                             <div className="flex w-full border rounded-full border-gray-300">
-                                <Input
-                                    type="search"
-                                    placeholder="Search products..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full border-transparent rounded-l-full focus:ring-blue-500"
-                                />
-                                <Button type="submit" className="rounded-r-full bg-blue-600 hover:bg-blue-700">
-                                    <Search className="text-white" size={18} />
-                                </Button>
+                                <Suspense>
+
+                                    <SearchBar handleSearch={handleSearch} />
+                                </Suspense>
                             </div>
                         </form>
                         <Accordion type="single" collapsible className="w-full">

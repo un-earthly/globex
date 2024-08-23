@@ -19,7 +19,7 @@ const OrdersPage = () => {
         return <div>Error fetching orders.</div>;
     }
 
-    const orders = ordersData.data;
+    const orders = ordersData?.data;
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',

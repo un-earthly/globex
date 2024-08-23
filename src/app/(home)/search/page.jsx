@@ -1,23 +1,32 @@
-"use client"
-import ProductList from '@/components/ProductList'
-import { Container } from '@/components/ui/container'
-import { useGetSearchResultQuery } from '@/lib/features/api'
+'use client'
+
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import React from 'react'
+import { Container } from '@/components/ui/container'
+import ProductList from '@/components/ProductList'
+import { useGetSearchResultQuery } from '@/lib/features/api'
 
 export default function SearchPage() {
     const searchParams = useSearchParams()
-    const searchQuery = searchParams.get('q') || ''
+    const [searchQuery, setSearchQuery] = useState('')
+    const page = searchParams?.get('page') || 1
+    const limit = searchParams?.get('limit') || 8
 
-    const { data: searchResults, isFetching } = useGetSearchResultQuery(searchQuery, {
-        skip: !searchQuery,
-    })
-    console.log(searchResults?.data)
+    useEffect(() => {
+        const query = searchParams?.get('q') || ''
+        setSearchQuery(query)
+    }, [searchParams])
+
+    const { data: searchResults, isFetching } = useGetSearchResultQuery(
+        { q: searchQuery, page, limit },
+        { skip: !searchQuery }
+    )
+
     return (
         <Container>
             {isFetching && <div>Searching...</div>}
             {searchResults && (
-                <ProductList products={searchResults?.data} />
+                <ProductList products={searchResults.data} />
             )}
         </Container>
     )

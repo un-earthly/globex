@@ -9,6 +9,8 @@ import {
     BarChart,
     Settings,
     Menu,
+    File,
+    Home,
 } from "lucide-react"
 import Link from 'next/link'
 
@@ -16,6 +18,12 @@ const Sidebar = ({ isOpen }) => (
     <aside className={`bg-gray-800 text-white w-64 min-h-screen p-4 ${isOpen ? '' : 'hidden'} md:block`}>
         <nav>
             <ul className="space-y-2">
+                <li>
+                    <Link href="/" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700">
+                        <Home className="h-5 w-5" />
+                        <span>Home</span>
+                    </Link>
+                </li>
                 <li>
                     <Link href="/admin" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700">
                         <LayoutDashboard className="h-5 w-5" />
@@ -35,9 +43,9 @@ const Sidebar = ({ isOpen }) => (
                     </Link>
                 </li>
                 <li>
-                    <Link href="/admin/customers" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700">
-                        <Users className="h-5 w-5" />
-                        <span>Customers</span>
+                    <Link href="/admin/category" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700">
+                        <File className="h-5 w-5" />
+                        <span>Category</span>
                     </Link>
                 </li>
             </ul>

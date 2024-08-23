@@ -1,6 +1,9 @@
 import BackToTopButton from '@/components/BackToTopButton'
 import Footer from '@/components/Footer'
-import Header from '@/components/Header'
+import dynamic from 'next/dynamic'
+const Header = dynamic(() => import('../../components/Header'), {
+    ssr: false,
+})
 import React from 'react'
 
 export default function HomeLayout({ children }) {

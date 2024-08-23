@@ -36,7 +36,7 @@ const formatDate = (dateString) => {
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function OrderDetails({ params }) {
-    const { data, isError, isLoading } = useGetOrderQuery(params.id);
+    const { data, isError, isLoading } = useGetOrderQuery(params?.id);
     const order = data?.data;
 
     const [selectedImages, setSelectedImages] = useState({});

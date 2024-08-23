@@ -23,7 +23,7 @@ const formSchema = z.object({
 
 export default function CheckoutForm({ onComplete }) {
     const [submitCheckout, { isLoading, isSuccess, isError, error }] = useCheckoutMutation();
-    const [formData, setFormData] = useState({});
+    const [user, setUser] = useState({});
     const cartItems = useSelector((state) => state.cart.items);
     const dispatch = useDispatch();
 
@@ -43,15 +43,16 @@ export default function CheckoutForm({ onComplete }) {
         // Load user data from localStorage
         const userData = JSON.parse(localStorage.getItem("user"));
         if (userData) {
+            setUser(userData)
             form.setValue("fullName", userData.fullName);
             form.setValue("email", userData.email);
         }
     }, [form]);
     const onSubmit = async (data) => {
-        const userId = JSON.parse(localStorage.getItem("user")).id;
+        // const userId = JSON.parse(localStorage.getItem("user")).id;
 
         const orderData = {
-            userId,
+            userId: user.id,
             items: cartItems.map((item) => ({
                 productId: item._id,
                 quantity: item.quantity,

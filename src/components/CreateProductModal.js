@@ -22,6 +22,7 @@ import {
 import { useGetTopCategoriesQuery, useUploadProductMutation } from '@/lib/features/api';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import { uploadImages } from '@/lib/utils';
 
 export function CreateProductModal({ children }) {
     const [open, setOpen] = useState(false);
@@ -50,26 +51,7 @@ export function CreateProductModal({ children }) {
         setFormData({ ...formData, [name]: value });
     };
 
-    const imageBBKey = '8df99c2ddfe4a2510f423bacf6e99ac2';
-
-    const uploadImages = async (files) => {
-        const uploadedImages = await Promise.all(
-            files.map(async (file) => {
-                const formData = new FormData();
-                formData.append('image', file);
-
-                try {
-                    const res = await axios.post(`https://api.imgbb.com/1/upload?key=${imageBBKey}`, formData);
-                    return res.data.data.url;
-                } catch (err) {
-                    console.error('Image upload failed:', err);
-                    return null;
-                }
-            })
-        );
-
-        return uploadedImages.filter((url) => url !== null);
-    };
+  
 
     const onDrop = useCallback(async (acceptedFiles) => {
         const uploadedImages = await uploadImages(acceptedFiles);
