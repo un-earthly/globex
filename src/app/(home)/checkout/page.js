@@ -1,4 +1,3 @@
-// app/checkout/page.jsx
 "use client"
 import { Suspense, useEffect, useState } from 'react';
 import CheckoutForm from '@/components/CheckoutForm';
@@ -7,6 +6,7 @@ import SuccessPage from '@/components/SuccessPage';
 import { Container } from '@/components/ui/container';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
+import { clearCart } from '@/lib/features/cartSlice';
 
 export default function Checkout() {
     const [isComplete, setIsComplete] = useState(false);
