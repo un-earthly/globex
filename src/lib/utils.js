@@ -22,6 +22,7 @@ export const saveCartToLocalStorage = (state) => {
   try {
     if (typeof window !== 'undefined') {
       const serializedCart = JSON.stringify(state);
+      console.log('serializedCart', serializedCart);
       localStorage.setItem('cart', serializedCart);
     }
     return null;

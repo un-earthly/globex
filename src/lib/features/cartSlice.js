@@ -16,21 +16,22 @@ const cartSlice = createSlice({
             }
             updateTotals(state);
         },
-
         removeFromCart: (state, action) => {
             state.items = state.items.filter(item => item._id !== action.payload);
             updateTotals(state);
         },
-
         updateQuantity: (state, action) => {
-            const { productId, quantity } = action.payload;
-            const item = state.items.find(item => item._id === productId);
-            if (item) {
-                item.quantity = quantity;
+            const { id:productId, quantity } = action.payload;
+            console.log('productId', productId);
+            if (state.items && state.items.length > 0) {
+                const item = state.items.find(item => item._id === productId);
+                if (item) {
+                    item.quantity = quantity > 0 ? quantity : 1;
+                }
             }
+            console.log('state', state.items);
             updateTotals(state);
         },
-
         clearCart: (state) => {
             state.items = [];
             state.discountedTotal = 0;

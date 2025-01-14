@@ -21,7 +21,7 @@ export default function Checkout() {
 
     };
     useEffect(() => {
-        dispatch(clearCart());
+        // dispatch(clearCart());
     }, [isComplete]);
 
     if (isComplete) {

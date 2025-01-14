@@ -4,14 +4,9 @@ import { useSelector } from 'react-redux'
 import CartItem from '@/components/CartItem'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useEffect } from 'react'
 
 export default function CartPage() {
-    // Safely accessing the cart state with fallback to an empty object
     const { items = [], total = 0, discountedTotal = 0 } = useSelector(state => state.cart || {});
-
-    useEffect(() => { }, []);
-
     if (items.length === 0) {
         return <div>Your cart is empty.</div>
     }
