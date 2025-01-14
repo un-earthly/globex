@@ -4,8 +4,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '@/lib/features/cartSlice'
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from 'lucide-react'
+import { useEffect } from 'react'
 
 export default function AddToCartButton({ product, iconOnly = false }) {
+
+    useEffect(() => {
+        console.log(product)
+    }, [product])
     const dispatch = useDispatch()
     const cartItems = useSelector((state) => state.cart.items);
     const isInCart = cartItems.some(item => item._id === product._id);

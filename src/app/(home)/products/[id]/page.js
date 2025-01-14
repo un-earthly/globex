@@ -65,8 +65,8 @@ export default function ProductPage({ params }) {
                     <p className="mb-4">Category: {product.data.category.name}</p>
                     <p className="mb-6">Subcategory: {product.data.subcategory}</p>
                     <div className="space-y-4">
-                        <AddToCartButton product={product} />
-                        <AddToWishlistButton product={product} />
+                        <AddToCartButton product={product?.data} />
+                        <AddToWishlistButton product={product?.data} />
                     </div>
                 </div>
             </div>

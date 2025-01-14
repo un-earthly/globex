@@ -11,7 +11,7 @@ import { Container } from '@/components/ui/container';
 
 export default function ProductList() {
     const [currentPage, setCurrentPage] = useState(1);
-    const limit = 20; // This matches the default limit in your API
+    const limit = 20;
 
     const {
         data,
