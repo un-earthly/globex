@@ -282,5 +282,4 @@ const ListItem = forwardRef(({ className, title, children, ...props }, ref) => {
     );
 });
 
-// Assign a display name to the component
 ListItem.displayName = "ListItem";
